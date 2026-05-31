@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HEXED | The Ultimate Marvel Rivals Experience</title>
+    <meta name="description" content="HEXED's Marvel Rivals YouTube channel website." />
+    <link rel="icon" href="assets/channel-logo.jpg" />
+    <link rel="apple-touch-icon" href="assets/channel-logo.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Outfit:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-dark: #030408;
+        --bg-panel: rgba(13, 16, 27, 0.72);
+        --hex-cyan: #00f0ff;
+        --hex-purple: #b026ff;
+        --hex-pink: #ff0055;
+        --hex-lime: #39ff14;
+        --text-main: #ffffff;
+        --text-muted: #8b9bb4;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glow-cyan: 0 0 24px rgba(0, 240, 255, 0.48);
+        --glow-purple: 0 0 24px rgba(176, 38, 255, 0.5);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+      }
+
+      body {
+        background: var(--bg-dark);
+        color: var(--text-main);
+        font-family: "Outfit", sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      #hex-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -3;
+        opacity: 0.58;
+      }
+
+      .crosshair-cursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+      }
+
+      .crosshair-cursor svg {
+        filter:
+          drop-shadow(0 0 10px var(--hex-cyan))
+          drop-shadow(0 0 18px rgba(176, 38, 255, 0.4));
+        transform-origin: center;
+        transition:
+          filter 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      body.hovering .crosshair-cursor svg {
+        filter:
+          drop-shadow(0 0 16px var(--hex-cyan))
+          drop-shadow(0 0 26px var(--hex-purple));
+        transform: scale(1.18);
+      }
+
+      h1,
+      h2,
+      h3,
+      .brand {
+        font-family: "Orbitron", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .gradient-text {
+        background: linear-gradient(90deg, var(--hex-cyan), var(--hex-purple), var(--hex-pink));
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradient-flow 5s linear infinite;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      nav {
+        position: fixed;
+        z-index: 100;
+        top: 20px;
+        left: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: min(90%, 1200px);
+        padding: 14px 24px;
+        border: 1px solid var(--glass-border);
+        border-radius: 100px;
+        background: rgba(10, 12, 20, 0.46);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+        transform: translateX(-50%);
+        transition: all 0.4s ease;
+      }
+
+      nav.scrolled {
+        top: 10px;
+        border-color: rgba(0, 240, 255, 0.3);
+        background: rgba(10, 12, 20, 0.82);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.35rem;
+        font-weight: 900;
+      }
+
+      .brand img {
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(0, 240, 255, 0.65);
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: var(--glow-cyan);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: clamp(14px, 3vw, 30px);
+      }
+
+      .nav-links a {
+        position: relative;
+        padding: 5px 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .nav-links a::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--hex-purple);
+        box-shadow: var(--glow-purple);
+        transition: width 0.3s ease;
+      }
+
+      .nav-links a:hover::after {
+        width: 100%;
+      }
+
+      .hero {
+        position: relative;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 120px 20px 70px;
+        text-align: center;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background:
+          linear-gradient(rgba(3, 4, 8, 0.72), rgba(3, 4, 8, 0.76)),
+          url("assets/hero.png") center / cover;
+        opacity: 0.62;
+      }
+
+      .cyber-grid {
+        position: absolute;
+        bottom: -50%;
+        left: -50%;
+        z-index: -1;
+        width: 200%;
+        height: 200%;
+        background-image:
+          linear-gradient(transparent 95%, rgba(0, 240, 255, 0.36) 100%),
+          linear-gradient(90deg, transparent 95%, rgba(0, 240, 255, 0.36) 100%);
+        background-size: 60px 60px;
+        opacity: 0.42;
+        transform: perspective(600px) rotateX(75deg) translateY(100px) translateZ(-200px);
+        animation: grid-scroll 10s linear infinite;
+        mask-image: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0) 60%);
+      }
+
+      .hero-content-wrapper {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 920px;
+        border: 1px solid rgba(0, 240, 255, 0.15);
+        border-radius: 22px;
+        background: rgba(3, 4, 8, 0.62);
+        padding: clamp(34px, 6vw, 64px) clamp(22px, 5vw, 44px);
+        box-shadow: 0 0 60px rgba(0, 240, 255, 0.08);
+        backdrop-filter: blur(12px);
+      }
+
+      .hud-element,
+      .section-label {
+        color: var(--hex-lime);
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.82rem;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+
+      .hud-element {
+        margin-bottom: 20px;
+        border-left: 3px solid var(--hex-lime);
+        border-right: 3px solid var(--hex-lime);
+        background: rgba(57, 255, 20, 0.05);
+        padding: 6px 20px;
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+      }
+
+      .hero-title {
+        position: relative;
+        margin-bottom: 20px;
+        color: var(--text-main);
+        font-size: clamp(4rem, 13vw, 10rem);
+        line-height: 1;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      }
+
+      .glitch::before,
+      .glitch::after {
+        content: attr(data-text);
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+      }
+
+      .glitch::before {
+        left: 4px;
+        text-shadow: -2px 0 var(--hex-pink);
+        animation: glitch-bot 3s infinite linear alternate-reverse;
+      }
+
+      .glitch::after {
+        left: -4px;
+        text-shadow: -2px 0 var(--hex-cyan);
+        animation: glitch-top 2.5s infinite linear alternate-reverse;
+      }
+
+      .hero-desc {
+        max-width: 650px;
+        margin-bottom: 38px;
+        color: var(--text-muted);
+        font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 18px;
+      }
+
+      .btn-hex,
+      .btn-outline {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 58px;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .btn-hex {
+        position: relative;
+        z-index: 1;
+        padding: 0 38px;
+        color: var(--text-main);
+      }
+
+      .btn-hex::before,
+      .btn-hex::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        transition: all 0.3s ease;
+      }
+
+      .btn-hex::before {
+        background: linear-gradient(45deg, var(--hex-purple), var(--hex-cyan));
+      }
+
+      .btn-hex::after {
+        inset: 2px;
+        background: var(--bg-dark);
+      }
+
+      .btn-hex:hover::after {
+        background: transparent;
+      }
+
+      .btn-hex:hover {
+        color: #000;
+        box-shadow: var(--glow-cyan);
+      }
+
+      .btn-outline {
+        border: 2px solid var(--hex-cyan);
+        background: rgba(0, 240, 255, 0.05);
+        color: var(--hex-cyan);
+        padding: 0 36px;
+        clip-path: polygon(0 0, 90% 0, 100% 100%, 10% 100%);
+        transition: all 0.3s ease;
+      }
+
+      .btn-outline:hover {
+        background: rgba(0, 240, 255, 0.2);
+        box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .section {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: clamp(76px, 11vw, 120px) 5%;
+      }
+
+      .section-header {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 52px;
+      }
+
+      .section-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        line-height: 1.05;
+      }
+
+      .featured-video {
+        width: 100%;
+        perspective: 1500px;
+      }
+
+      .tilt-card {
+        position: relative;
+        width: 100%;
+        border: 1px solid var(--glass-border);
+        border-radius: 22px;
+        background: var(--bg-panel);
+        padding: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        transform-style: preserve-3d;
+        transition:
+          transform 0.1s ease,
+          box-shadow 0.3s ease;
+        overflow: hidden;
+      }
+
+      .tilt-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 60%);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateZ(30px);
+        transition: opacity 0.3s;
+      }
+
+      .tilt-card:hover::before {
+        opacity: 1;
+      }
+
+      .tilt-card-img-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 21 / 9;
+        border-radius: 12px;
+        overflow: hidden;
+        transform: translateZ(40px);
+      }
+
+      .tilt-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+
+      .tilt-card:hover img {
+        transform: scale(1.05);
+      }
+
+      .play-btn-huge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        z-index: 3;
+        display: flex;
+        width: clamp(74px, 9vw, 100px);
+        height: clamp(74px, 9vw, 100px);
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--hex-cyan);
+        border-radius: 50%;
+        background: rgba(0, 240, 255, 0.2);
+        box-shadow: var(--glow-cyan);
+        backdrop-filter: blur(10px);
+        transform: translate(-50%, -50%);
+        transition: all 0.3s ease;
+      }
+
+      .play-btn-huge::after {
+        content: "";
+        width: 0;
+        height: 0;
+        margin-left: 8px;
+        border-top: 15px solid transparent;
+        border-bottom: 15px solid transparent;
+        border-left: 25px solid var(--text-main);
+      }
+
+      .tilt-card:hover .play-btn-huge {
+        background: var(--hex-cyan);
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+
+      .tilt-card:hover .play-btn-huge::after {
+        border-left-color: #000;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 30px;
+      }
+
+      .glass-card {
+        position: relative;
+        min-height: 250px;
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        background: linear-gradient(145deg, rgba(20, 25, 40, 0.62), rgba(10, 12, 20, 0.86));
+        padding: 40px 30px;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .glass-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--hex-cyan), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s ease;
+      }
+
+      .glass-card:nth-child(2)::before {
+        background: linear-gradient(90deg, transparent, var(--hex-purple), transparent);
+      }
+
+      .glass-card:nth-child(3)::before {
+        background: linear-gradient(90deg, transparent, var(--hex-pink), transparent);
+      }
+
+      .glass-card:hover {
+        border-color: rgba(255, 255, 255, 0.22);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        transform: translateY(-15px);
+      }
+
+      .glass-card:hover::before {
+        transform: translateX(100%);
+      }
+
+      .glass-card h3 {
+        margin: 15px 0;
+        font-size: 1.55rem;
+      }
+
+      .glass-card p,
+      .spotlight-text p,
+      footer p {
+        color: var(--text-muted);
+      }
+
+      .spotlight-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        align-items: center;
+        margin: 70px 0 100px;
+        border-top: 1px solid rgba(176, 38, 255, 0.22);
+        border-bottom: 1px solid rgba(176, 38, 255, 0.22);
+        background: linear-gradient(90deg, transparent, rgba(176, 38, 255, 0.07), transparent);
+        padding: clamp(70px, 8vw, 90px) 5%;
+      }
+
+      .spotlight-text h2 {
+        margin-bottom: 20px;
+        color: var(--hex-purple);
+        font-size: clamp(3rem, 6vw, 5rem);
+        text-shadow: var(--glow-purple);
+      }
+
+      .stat-bar {
+        margin-top: 30px;
+      }
+
+      .stat {
+        margin-bottom: 16px;
+      }
+
+      .stat-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+      }
+
+      .stat-track {
+        width: 100%;
+        height: 6px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+      }
+
+      .stat-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--hex-cyan), var(--hex-purple));
+        box-shadow: var(--glow-purple);
+      }
+
+      .spotlight-image {
+        position: relative;
+        display: flex;
+        min-height: clamp(460px, 55vw, 620px);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .hex-bg {
+        position: absolute;
+        width: min(78vw, 420px);
+        height: min(86vw, 470px);
+        border: 2px solid var(--hex-purple);
+        background: rgba(176, 38, 255, 0.1);
+        box-shadow: inset 0 0 50px rgba(176, 38, 255, 0.5);
+        clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .spotlight-image img {
+        position: relative;
+        z-index: 2;
+        max-width: min(88%, 520px);
+        max-height: 680px;
+        border-radius: 22px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 30px rgba(176, 38, 255, 0.62));
+        animation: float 6s ease-in-out infinite reverse;
+      }
+
+      .subscribe-panel {
+        border: 1px solid rgba(0, 240, 255, 0.18);
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(176, 38, 255, 0.1));
+        padding: clamp(34px, 6vw, 60px);
+        text-align: center;
+      }
+
+      .subscribe-panel p {
+        max-width: 720px;
+        margin: 18px auto 32px;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+      }
+
+      footer {
+        position: relative;
+        overflow: hidden;
+        border-top: 1px solid var(--glass-border);
+        background: #010204;
+        padding: 60px 20px;
+        text-align: center;
+      }
+
+      footer::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 50%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--hex-cyan), transparent);
+        box-shadow: var(--glow-cyan);
+        transform: translateX(-50%);
+      }
+
+      .footer-brand {
+        margin-bottom: 10px;
+        color: rgba(255, 255, 255, 0.55);
+        font-family: "Orbitron", sans-serif;
+        font-size: 2rem;
+      }
+
+      @keyframes gradient-flow {
+        to {
+          background-position: 200% center;
+        }
+      }
+
+      @keyframes grid-scroll {
+        from {
+          transform: perspective(600px) rotateX(75deg) translateY(100px) translateZ(-200px);
+        }
+
+        to {
+          transform: perspective(600px) rotateX(75deg) translateY(160px) translateZ(-200px);
+        }
+      }
+
+      @keyframes glitch-bot {
+        0% { clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%); transform: translate(2px, 0); }
+        20% { clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%); transform: translate(-2px, 0); }
+        40% { clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%); transform: translate(2px, 0); }
+        60% { clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%); transform: translate(-2px, 0); }
+        80% { clip-path: polygon(0 70%, 100% 70%, 100% 70%, 0 70%); transform: translate(2px, 0); }
+        100% { clip-path: polygon(0 80%, 100% 80%, 100% 80%, 0 80%); transform: translate(-2px, 0); }
+      }
+
+      @keyframes glitch-top {
+        0% { clip-path: polygon(0 15%, 100% 15%, 100% 40%, 0 40%); transform: translate(-2px, 2px); }
+        20% { clip-path: polygon(0 10%, 100% 10%, 100% 20%, 0 20%); transform: translate(2px, -2px); }
+        40% { clip-path: polygon(0 1%, 100% 1%, 100% 2%, 0 2%); transform: translate(2px, 2px); }
+        60% { clip-path: polygon(0 33%, 100% 33%, 100% 33%, 0 33%); transform: translate(-2px, -2px); }
+        80% { clip-path: polygon(0 44%, 100% 44%, 100% 44%, 0 44%); transform: translate(2px, -2px); }
+        100% { clip-path: polygon(0 50%, 100% 50%, 100% 20%, 0 20%); transform: translate(-2px, 2px); }
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+      }
+
+      @media (max-width: 900px) {
+        nav {
+          width: calc(100% - 28px);
+          padding: 12px 16px;
+        }
+
+        .brand {
+          font-size: 1.05rem;
+        }
+
+        .nav-links {
+          gap: 12px;
+        }
+
+        .nav-links a {
+          font-size: 0.75rem;
+        }
+
+        .grid,
+        .spotlight-container {
+          grid-template-columns: 1fr;
+        }
+
+        .spotlight-container {
+          text-align: center;
+        }
+
+        .stat-label {
+          justify-content: center;
+          gap: 20px;
+        }
+
+        .tilt-card-img-wrapper {
+          aspect-ratio: 16 / 9;
+        }
+      }
+
+      @media (max-width: 560px) {
+        nav {
+          align-items: flex-start;
+          border-radius: 24px;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .nav-links {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .hero-title {
+          font-size: 3.55rem;
+        }
+
+        .hero-content-wrapper {
+          margin-top: 76px;
+        }
+
+        .btn-hex,
+        .btn-outline {
+          width: 100%;
+        }
+      }
+
+      @media (pointer: coarse) {
+        .crosshair-cursor {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="hex-canvas"></canvas>
+
+    <div class="crosshair-cursor" aria-hidden="true">
+      <svg width="38" height="38" viewBox="0 0 64 64">
+        <circle cx="32" cy="32" r="17" fill="none" stroke="var(--hex-cyan)" stroke-width="3" opacity="0.92" />
+        <circle cx="32" cy="32" r="4" fill="var(--hex-pink)" />
+        <path d="M32 5V20M32 44V59M5 32H20M44 32H59" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+        <path d="M32 9V18M32 46V55M9 32H18M46 32H55" stroke="var(--hex-purple)" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </div>
+
+    <nav id="navbar" aria-label="Main navigation">
+      <a href="#home" class="brand">
+        <img src="assets/channel-logo.jpg" alt="" />
+        <span>HEXED</span>
+      </a>
+      <div class="nav-links">
+        <a href="#featured">Latest</a>
+        <a href="#arsenal">Content</a>
+        <a href="#psylocke">Psylocke</a>
+        <a href="#subscribe">Subscribe</a>
+      </div>
+    </nav>
+
+    <header id="home" class="hero">
+      <div class="cyber-grid"></div>
+      <div class="hero-content-wrapper">
+        <div class="hud-element reveal">System Online // Marvel Rivals</div>
+        <h1 class="hero-title glitch reveal" data-text="HEXED" style="transition-delay: 0.2s">HEXED</h1>
+        <p class="hero-desc reveal" style="transition-delay: 0.4s">
+          High-voltage Marvel Rivals matches. Next-level hero plays. Step into the ultimate
+          gaming experience.
+        </p>
+        <div class="hero-actions reveal" style="transition-delay: 0.6s">
+          <a href="#featured" class="btn-hex">Enter The Grid</a>
+          <a href="#arsenal" class="btn-outline">View Intel</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="featured" class="section">
+        <div class="section-header reveal">
+          <span class="section-label">// Transmission Incoming</span>
+          <h2 class="section-title">The Latest <span class="gradient-text">Drop</span></h2>
+        </div>
+        <a
+          class="featured-video reveal"
+          href="https://www.youtube.com/watch?v=W480-Rr-Zn4"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Watch HEXED's latest Marvel Rivals video on YouTube"
+        >
+          <div class="tilt-card" id="main-video-card">
+            <div class="tilt-card-img-wrapper">
+              <img src="https://img.youtube.com/vi/W480-Rr-Zn4/maxresdefault.jpg" alt="Marvel Rivals YouTube video thumbnail" />
+              <div class="play-btn-huge" aria-hidden="true"></div>
+            </div>
+          </div>
+        </a>
+      </section>
+
+      <section id="arsenal" class="section">
+        <div class="section-header reveal">
+          <span class="section-label">// Database Access</span>
+          <h2 class="section-title">The <span class="gradient-text">Arsenal</span></h2>
+        </div>
+        <div class="grid">
+          <article class="glass-card reveal">
+            <span class="section-label" style="color: var(--hex-cyan)">01. Matches</span>
+            <h3>Sweat & Glory</h3>
+            <p>Full-length matches, unbelievable comebacks, and pure Marvel Rivals chaos.</p>
+          </article>
+          <article class="glass-card reveal" style="transition-delay: 0.2s">
+            <span class="section-label" style="color: var(--hex-purple)">02. Intel</span>
+            <h3>Hero Blueprints</h3>
+            <p>Favorite heroes, quick tips, combos, and strategies worth trying in game.</p>
+          </article>
+          <article class="glass-card reveal" style="transition-delay: 0.4s">
+            <span class="section-label" style="color: var(--hex-pink)">03. Shorts</span>
+            <h3>Hit & Run</h3>
+            <p>Bite-sized clips, funny moments, saves, knockouts, and hype plays.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="psylocke" class="spotlight-container">
+        <div class="spotlight-text reveal">
+          <span class="section-label">// Main Selection</span>
+          <h2>PSYLOCKE</h2>
+          <p>
+            Lethal precision meets psychic energy. Watch the hero spotlight glow with the
+            same neon pressure as a Marvel Rivals intro screen.
+          </p>
+          <div class="stat-bar">
+            <div class="stat">
+              <div class="stat-label"><span>Agility</span><span>95%</span></div>
+              <div class="stat-track"><div class="stat-fill" style="width: 95%"></div></div>
+            </div>
+            <div class="stat">
+              <div class="stat-label"><span>Burst DMG</span><span>88%</span></div>
+              <div class="stat-track"><div class="stat-fill" style="width: 88%"></div></div>
+            </div>
+            <div class="stat">
+              <div class="stat-label"><span>Utility</span><span>70%</span></div>
+              <div class="stat-track"><div class="stat-fill" style="width: 70%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="spotlight-image reveal">
+          <div class="hex-bg"></div>
+          <img src="assets/psylocke.png" alt="Stylized Psylocke action pose" />
+        </div>
+      </section>
+
+      <section id="subscribe" class="section">
+        <div class="subscribe-panel reveal">
+          <span class="section-label">// Join The Channel</span>
+          <h2 class="section-title">Subscribe To <span class="gradient-text">HEXED</span></h2>
+          <p>Keep up with new Marvel Rivals videos, clips, and hero highlights.</p>
+          <a class="btn-hex" href="https://www.youtube.com/@marvelmagix" target="_blank" rel="noreferrer">
+            Subscribe on YouTube
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-brand">HEXED</div>
+      <p>System Online // Marvel Rivals // <span id="year"></span></p>
+    </footer>
+
+    <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      const crosshairCursor = document.querySelector(".crosshair-cursor");
+
+      window.addEventListener("mousemove", (event) => {
+        const posX = event.clientX;
+        const posY = event.clientY;
+
+        if (crosshairCursor) {
+          crosshairCursor.style.left = `${posX}px`;
+          crosshairCursor.style.top = `${posY}px`;
+        }
+      });
+
+      document.querySelectorAll("a, .glass-card, .tilt-card").forEach((element) => {
+        element.addEventListener("mouseenter", () => document.body.classList.add("hovering"));
+        element.addEventListener("mouseleave", () => document.body.classList.remove("hovering"));
+      });
+
+      const navbar = document.getElementById("navbar");
+      window.addEventListener("scroll", () => {
+        navbar.classList.toggle("scrolled", window.scrollY > 50);
+      });
+
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("active");
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      );
+
+      document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+
+      const tiltCard = document.getElementById("main-video-card");
+
+      tiltCard.addEventListener("mousemove", (event) => {
+        const rect = tiltCard.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -10;
+        const rotateY = ((x - centerX) / centerX) * 10;
+        tiltCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+
+      tiltCard.addEventListener("mouseleave", () => {
+        tiltCard.style.transform = "rotateX(0deg) rotateY(0deg)";
+      });
+
+      const canvas = document.getElementById("hex-canvas");
+      const ctx = canvas.getContext("2d");
+      let width;
+      let height;
+      const particles = [];
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+
+      window.addEventListener("resize", resize);
+      resize();
+
+      function drawHexagon(x, y, radius) {
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const angle = ((2 * Math.PI) / 6) * i;
+          const pointX = x + radius * Math.cos(angle);
+          const pointY = y + radius * Math.sin(angle);
+          if (i === 0) ctx.moveTo(pointX, pointY);
+          else ctx.lineTo(pointX, pointY);
+        }
+        ctx.closePath();
+      }
+
+      class HexParticle {
+        constructor() {
+          this.reset();
+          this.y = Math.random() * height;
+        }
+
+        reset() {
+          this.x = Math.random() * width;
+          this.y = height + 50;
+          this.size = Math.random() * 15 + 5;
+          this.speedY = (Math.random() * 0.5 + 0.2) * -1;
+          this.speedX = (Math.random() - 0.5) * 0.2;
+          this.opacity = Math.random() * 0.3 + 0.1;
+          this.color = Math.random() > 0.5 ? "0, 240, 255" : "176, 38, 255";
+        }
+
+        update() {
+          this.y += this.speedY;
+          this.x += this.speedX;
+          if (this.y < -50) this.reset();
+        }
+
+        draw() {
+          ctx.strokeStyle = `rgba(${this.color}, ${this.opacity})`;
+          ctx.lineWidth = 1;
+          drawHexagon(this.x, this.y, this.size);
+          ctx.stroke();
+        }
+      }
+
+      for (let i = 0; i < 40; i++) {
+        particles.push(new HexParticle());
+      }
+
+      function animateCanvas() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach((particle) => {
+          particle.update();
+          particle.draw();
+        });
+        requestAnimationFrame(animateCanvas);
+      }
+
+      animateCanvas();
+    </script>
+  </body>
+</html>
